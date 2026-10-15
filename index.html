@@ -71,6 +71,10 @@ ul{padding:0;list-style:none}
 h1.hero{color:var(--link)}
 h1{font-size:clamp(32px,9vw,44px);line-height:1.1;font-weight:700;letter-spacing:-.01em;text-wrap:balance;overflow-wrap:anywhere}
 .sub{color:var(--muted);margin-top:8px;text-wrap:pretty}
+.tagline{white-space:pre-wrap;overflow-wrap:anywhere}
+.tag-inp{display:block;width:100%;margin-top:8px;padding:10px 14px;border:2px dashed var(--dash);border-radius:16px;background:transparent;color:var(--ink);font:inherit;line-height:1.5;resize:none;overflow:hidden;caret-color:var(--link);outline:0}
+textarea.tag-inp:focus,textarea.tag-inp:focus-visible{border-color:var(--link);outline:0}
+.tag-inp::placeholder{color:var(--muted)}
 
 /* buttons */
 .btn{min-height:48px;padding:0 22px;border:0;background:var(--fill);border-radius:980px;font-weight:500}
@@ -322,7 +326,7 @@ function migrate(s){
     });
     delete x.ctx;delete x.mode;
   });
-  s.settings=Object.assign({accent:'pink',scheme:'auto',keepAwake:true,defaultView:'last',favMin:5},s.settings||{});
+  s.settings=Object.assign({accent:'pink',scheme:'auto',keepAwake:true,defaultView:'last',favMin:5,tagline:'📋用标准化流程让生活更简单，再也不怕忘事情🤨'},s.settings||{});
   if(!s.opens||typeof s.opens!=='object')s.opens={};
   if(['pink','lavender','mint','peach','sky','lemon'].indexOf(s.settings.accent)<0)s.settings.accent='pink';
   delete s.settings.sound;delete s.settings.vibrate;
@@ -483,7 +487,8 @@ function homeView(){
   var date=new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'short'});
   var run=state.sops.filter(started);
   var h='<div class="page"><header class="top"><div class="top-row"><div><div class="eyebrow">'+esc(date)+'</div><h1 class="hero">SOP小助手</h1></div>'+lockBtn()+'</div>'
-    +'<p class="sub">'+(ui.editMode?'已解锁：长按板块或点红点删除，点虚线加号新建。改完再点一下锁。':'📋用标准化流程让生活更简单，再也不怕忘事情🤨')+'</p></header>';
+    +(ui.editMode?'<textarea class="tag-inp" data-f="tagline" rows="2" maxlength="80" placeholder="写一句给自己的话" aria-label="首页的话">'+esc(state.settings.tagline||'')+'</textarea>'
+      :(state.settings.tagline?'<p class="sub tagline">'+esc(state.settings.tagline)+'</p>':''))+'</header>';
   h+=toastHtml();
   if(run.length&&!ui.editMode){
     h+='<section class="resume" aria-label="没做完的"><div class="eyebrow">没做完</div>';
@@ -747,6 +752,7 @@ function render(){
     ui.enter=false;
   }else app.className='';
   updateSync();
+  var tg=document.querySelector('.tag-inp');if(tg){tg.style.height='auto';tg.style.height=tg.scrollHeight+4+'px'}
   var cs=ui.view==='sop'&&sop(ui.sid);
   if(cs&&cs.view==='card'&&state.settings.keepAwake)lock();else unlock();
   if(ui.toast){
@@ -1006,6 +1012,7 @@ document.addEventListener('click',function(e){
 });
 document.addEventListener('input',function(e){
   var el=e.target,f=el.dataset&&el.dataset.f;if(!f)return;
+  if(f==='tagline'){state.settings.tagline=el.value;el.style.height='auto';el.style.height=el.scrollHeight+4+'px';save();return}
   if(f==='bname'){var b=boardOf(ui.bid);if(b){b.name=el.value;save()}return}
   var s=sop(ui.sid);if(!s)return;
   if(f==='title'){s.title=el.value;save();return}
