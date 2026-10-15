@@ -470,8 +470,8 @@ function favList(){
 }
 function favView(){
   var list=favList(),min=state.settings.favMin||5;
-  var h='<div class="page"><header class="top"><div class="eyebrow">最近 7 天</div><h1>常用</h1><p class="sub">一周内打开超过 '+min+' 次的 SOP，会自动出现在这里。</p></header>'+toastHtml();
-  if(!list.length)h+='<p class="empty">暂时还没有。多用几次就会自动上来，次数可以在设置里调整。</p>';
+  var h='<div class="page"><header class="top"><h1>常用</h1><p class="sub">7天内使用超过 '+min+' 次的 SOP，会自动出现在这里哦~</p></header>'+toastHtml();
+  if(!list.length)h+='<p class="empty">暂时还没有，再多用用吧！</p>';
   else{
     h+='<div class="tiles">';
     list.forEach(function(x){
@@ -669,7 +669,7 @@ function applyAppearance(){
   document.body.style.zoom=z;
 }
 function setItem(label,hint,ctl){
-  return '<div class="setitem"><div class="setlabel"><b>'+label+'</b>'+(hint?'<small>'+hint+'</small>':'')+'</div>'+ctl+'</div>';
+  return '<div class="setitem"><div class="setlabel"><b>'+label+'</b>'+'</div>'+ctl+'</div>';
 }
 function segc(act,k,opts,cur,label){
   return '<div class="segc" role="group" aria-label="'+label+'">'+opts.map(function(o){
@@ -681,7 +681,7 @@ function swt(k,label){
 }
 function settingsView(){
   var st=state.settings,samples=state.sops.filter(function(s){return s.sample}).length;
-  var h='<div class="page"><header class="top"><div class="eyebrow">让它更顺手</div><h1>设置</h1></header>'+toastHtml();
+  var h='<div class="page"><header class="top"><h1>设置</h1></header>'+toastHtml();
   h+='<section class="setgroup"><h2>外观</h2><div class="setlist">';
   h+=setItem('主题色','按钮、进度条和强调色','<div class="swatches" role="group" aria-label="主题色">'+Object.keys(ACCENTS).map(function(k){
     return '<button class="swatch" style="--sw:'+ACCENTS[k].fill+';--swk:'+ACCENTS[k].ink+'" data-act="setv" data-k="accent" data-v="'+k+'" aria-pressed="'+(st.accent===k)+'" aria-label="'+ACCENTS[k].n+'">'+(st.accent===k?'✓':'')+'</button>';
@@ -689,16 +689,14 @@ function settingsView(){
   h+=setItem('明暗','跟随手机或电脑的设置，也可以固定',segc('setv','scheme',[['auto','跟随系统'],['light','浅色'],['dark','深色']],st.scheme,'明暗'));
   h+=setItem('界面大小','只对这台设备生效',segc('dev','size',Object.keys(SIZES).map(function(k){return [k,SIZES[k].n]}),dev.size,'界面大小'));
   h+='</div></section>';
-  h+='<section class="setgroup"><h2>做事时</h2><div class="setlist">';
+  h+='<section class="setgroup"><h2>使用</h2><div class="setlist">';
   h+=setItem('卡片模式保持屏幕常亮','做事时屏幕不会自己熄灭',swt('keepAwake','卡片模式保持屏幕常亮'));
-  h+=setItem('打开 SOP 时','选「卡片」可以直接进入一步一步的状态',segc('setv','defaultView',[['last','上次用的'],['overview','概览'],['card','卡片']],st.defaultView,'打开 SOP 时的默认模式'));
-  h+=setItem('常用的标准','一周内打开超过这个次数，就会出现在「常用」','<div class="stepper"><button data-act="favmin" data-v="-1" aria-label="减少">−</button><b class="mono">'+(st.favMin||5)+' 次</b><button data-act="favmin" data-v="1" aria-label="增加">+</button></div>');
+  h+=setItem('设置常用标准','','<div class="stepper"><button data-act="favmin" data-v="-1" aria-label="减少">−</button><b class="mono">'+(st.favMin||5)+' 次</b><button data-act="favmin" data-v="1" aria-label="增加">+</button></div>');
   h+='</div></section>';
   h+='<section class="setgroup"><h2>数据</h2><div class="setlist">';
-  h+='<button class="setbtn" data-act="export"><span><b>导出备份</b><small>保存成一个文件，换设备或出问题时用</small></span><span aria-hidden="true">›</span></button>';
-  h+='<button class="setbtn" data-act="import"><span><b>'+(ui.confirm==='import'?'再点一次，选择备份文件':'导入备份')+'</b><small>会覆盖现在的所有内容</small></span><span aria-hidden="true">›</span></button>';
-  h+='<button class="setbtn" data-act="clearsample"'+(samples?'':' disabled')+'><span><b>'+(ui.confirm==='clearsample'?'再点一次，确认清除':'清除示例卡')+'</b><small>'+(samples?'删除所有带「示例」标记的 '+samples+' 张卡':'没有示例卡了')+'</small></span><span aria-hidden="true">›</span></button>';
-  h+='<button class="setbtn warn" data-act="resetall"><span><b>'+(ui.confirm==='resetall'?'再点一次，确认重置':'重置全部内容')+'</b><small>恢复成最初的板块和示例卡，设置保留</small></span><span aria-hidden="true">›</span></button>';
+  h+='<button class="setbtn" data-act="export"><span><b>导出备份</b></span><span aria-hidden="true">›</span></button>';
+  h+='<button class="setbtn" data-act="import"><span><b>'+(ui.confirm==='import'?'再点一次，选择备份文件':'导入备份')+'</b></span><span aria-hidden="true">›</span></button>';
+  h+='<button class="setbtn warn" data-act="resetall"><span><b>'+(ui.confirm==='resetall'?'再点一次，确认重置':'重置全部内容')+'</b></span><span aria-hidden="true">›</span></button>';
   h+='</div></section></div>'+tabbar('settings');
   return h;
 }
