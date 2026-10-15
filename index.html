@@ -79,7 +79,9 @@ h1{font-size:clamp(32px,9vw,44px);line-height:1.1;font-weight:700;letter-spacing
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .linkbtn{background:none;border:0;min-height:44px;padding:0 8px;color:var(--link);text-decoration:none}
 .linkbtn:hover{text-decoration:underline}
-.linkbtn.back{padding-left:0;font-weight:500}
+.linkbtn.back{padding:0 14px 0 10px;margin-left:-10px;border-radius:980px;font-weight:500;text-decoration:none;transition:background .2s var(--ease)}
+.linkbtn.back:active{background:var(--fill)}
+@media (hover:hover){.linkbtn.back:hover{background:var(--fill);text-decoration:none}}
 .mini{min-width:36px;min-height:34px;padding:0 12px;border:0;border-radius:980px;background:var(--card);color:var(--link);font-size:15px;font-weight:500}
 .mini:disabled{opacity:.35;cursor:not-allowed}
 
@@ -132,10 +134,10 @@ h1{font-size:clamp(32px,9vw,44px);line-height:1.1;font-weight:700;letter-spacing
 .addform .inp{flex:1 1 160px;width:auto}
 
 /* SOP page */
-.sop-wrap{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:12px;align-items:start}
+.sop-wrap{display:block}
 .sop-main{min-width:0}
-.vtabs{display:flex;flex-direction:column;gap:2px;position:sticky;top:76px;padding:3px;border-radius:14px;background:var(--fill)}
-.vtab{writing-mode:vertical-rl;min-height:96px;padding:12px 0;border:0;border-radius:11px;background:transparent;color:var(--muted);font-size:14px;font-weight:500;letter-spacing:.2em}
+.vtabs{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:6;display:grid;grid-template-columns:1fr 1fr;gap:4px;width:min(300px,100%);margin:20px auto 0;padding:5px;border-radius:980px;background:var(--tabglass);-webkit-backdrop-filter:saturate(200%) blur(30px);backdrop-filter:saturate(200%) blur(30px);box-shadow:0 10px 30px rgba(60,20,40,.16),0 2px 6px rgba(60,20,40,.08),inset 0 1px 0 rgba(255,255,255,.6)}
+.vtab{min-height:42px;padding:0 12px;border:0;border-radius:980px;background:transparent;color:var(--muted);font-size:15px;font-weight:500;transition:background .2s var(--ease),color .2s var(--ease)}
 .vtab[aria-pressed="true"]{background:var(--seg-on);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.14)}
 .lead{margin:0 0 18px;color:var(--muted);text-align:center;font-size:15px}
 .lead.ok{color:var(--done);font-weight:600}
@@ -195,7 +197,7 @@ details.bulk .btn{margin-top:10px}
 .mv[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
 .swipehint{text-align:center;font-size:13px;color:var(--muted);margin-bottom:10px}
 .next{text-align:center;color:var(--muted);font-size:14px;margin-bottom:16px;overflow-wrap:anywhere}
-.bar{position:sticky;bottom:56px;background:var(--bg);padding-block:10px 6px;display:flex;flex-direction:column;gap:8px}
+.bar{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--bg);padding-block:10px 6px;display:flex;flex-direction:column;gap:8px}
 .foot-links{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
 .skiplist{margin:16px 0;display:flex;flex-direction:column;gap:8px}
 .skiprow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 8px 8px 18px;background:var(--warn-soft);border-radius:18px}
@@ -411,7 +413,7 @@ var LOCK_OPEN=SVG_HEAD+'<rect x="5" y="11" width="14" height="10" rx="2"/><path 
 function lockBtn(){
   return '<button class="lockbtn" data-act="lock" aria-pressed="'+ui.editMode+'" aria-label="'+(ui.editMode?'已解锁，点按锁定并完成编辑':'已锁定，点按解锁后可编辑')+'">'+(ui.editMode?LOCK_OPEN:LOCK_SHUT)+'</button>';
 }
-function dock(label){return '<div class="dock">'+esc(label)+'</div>'}
+function dock(){return ''}
 var TAB_ICONS={
   fav:SVG_HEAD+'<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9-4.3-4.1 5.9-.8z"/></svg>',
   home:SVG_HEAD+'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>',
@@ -538,9 +540,10 @@ function sopView(){
   h+='<div class="sop-wrap"><div class="sop-main">';
   if(card)h+=cardMode(s,r);
   else h+=ui.editMode?editSteps(s):tickSteps(s,r);
-  h+='</div><div class="vtabs" role="group" aria-label="显示方式">'
+  h+='</div></div></div>'
+    +'<div class="vtabs" role="group" aria-label="显示方式">'
     +'<button class="vtab" data-act="vmode" data-v="overview" aria-pressed="'+!card+'">概览模式</button>'
-    +'<button class="vtab" data-act="vmode" data-v="card" aria-pressed="'+card+'">卡片模式</button></div></div></div>'+dock(s.title);
+    +'<button class="vtab" data-act="vmode" data-v="card" aria-pressed="'+card+'">卡片模式</button></div>';
   return h;
 }
 function tickSteps(s,r){
@@ -605,7 +608,6 @@ function cardMode(s,r){
   var h='<div class="segs" role="progressbar" aria-valuemin="0" aria-valuemax="'+n+'" aria-valuenow="'+marks(r)+'" aria-label="进度">'+segs+'</div>';
   h+='<div class="stage"><div class="swipecard under" id="undercard" aria-hidden="true"></div>'
     +'<div class="swipecard" id="swipecard" tabindex="0" aria-label="第 '+(r.idx+1)+' 步：'+esc(cur.text)+'。向左滑或按右方向键表示做完了，向右滑或按左方向键回到上一步。">'+cardInner(s,r.idx)+'</div></div>';
-  h+='<p class="swipehint">向左滑：做完了　·　向右滑：上一步</p>';
   var nx=nextIdx(s,r,r.idx);
   h+='<p class="next">'+(nx<n?'下一步 · '+esc(s.steps[nx].text):'这是最后一步')+'</p>';
   h+='<div class="bar"><button class="btn" data-act="skip" style="min-height:56px">先跳过</button>'
@@ -649,8 +651,8 @@ function applyAppearance(){
   var L='--accent:'+a.fill+';--accent-ink:'+a.ink+';--accent-soft:'+a.l[0]+';--link:'+a.l[1]+';';
   var D='--accent:'+a.fill+';--accent-ink:'+a.ink+';--accent-soft:'+a.d[0]+';--link:'+a.d[1]+';';
   var el=document.getElementById('theme-style');
-  if(!el){el=document.createElement('style');el.id='theme-style';document.head.appendChild(el)}
-  el.textContent=':root{'+L+'}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){'+D+'}}:root[data-theme="dark"]{'+D+'}';
+  if(!el){el=document.createElement('style');el.id='theme-style';(document.body||document.head).appendChild(el)}
+  el.textContent='html:root:root{'+L+'}@media (prefers-color-scheme: dark){html:root:root:not([data-theme="light"]){'+D+'}}html:root:root[data-theme="dark"]{'+D+'}';
   var root=document.documentElement;
   if(st.scheme==='light'||st.scheme==='dark'){root.setAttribute('data-theme',st.scheme);schemeSet=true}
   else if(schemeSet){root.removeAttribute('data-theme');schemeSet=false}
