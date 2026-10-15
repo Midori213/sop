@@ -681,7 +681,7 @@ function swt(k,label){
 }
 function settingsView(){
   var st=state.settings,samples=state.sops.filter(function(s){return s.sample}).length;
-  var h='<div class="page"><header class="top"><div class="eyebrow">让它更顺手</div><h1>设置</h1><p class="sub">改动马上生效。</p></header>'+toastHtml();
+  var h='<div class="page"><header class="top"><div class="eyebrow">让它更顺手</div><h1>设置</h1></header>'+toastHtml();
   h+='<section class="setgroup"><h2>外观</h2><div class="setlist">';
   h+=setItem('主题色','按钮、进度条和强调色','<div class="swatches" role="group" aria-label="主题色">'+Object.keys(ACCENTS).map(function(k){
     return '<button class="swatch" style="--sw:'+ACCENTS[k].fill+';--swk:'+ACCENTS[k].ink+'" data-act="setv" data-k="accent" data-v="'+k+'" aria-pressed="'+(st.accent===k)+'" aria-label="'+ACCENTS[k].n+'">'+(st.accent===k?'✓':'')+'</button>';
