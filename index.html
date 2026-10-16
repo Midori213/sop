@@ -178,6 +178,21 @@ body.scrolled .inav-bar{opacity:1;transform:none}
 .flow-add .tile-add{height:auto;min-height:60px;border-radius:20px;font-size:32px}
 .inp{width:100%;min-height:50px;padding:0 16px;border:0;background:var(--card);color:var(--ink);border-radius:14px;font:inherit}
 .inp::placeholder{color:var(--muted);opacity:.85}
+.tile-name{width:100%;border:0;background:transparent;padding:0;margin:0;font:inherit;color:inherit;letter-spacing:inherit;outline:0;border-radius:0;-webkit-appearance:none;appearance:none;-webkit-user-select:text;user-select:text;caret-color:var(--strong)}
+html .tile-name:focus,html .tile-name:focus-visible{outline:none!important;box-shadow:none!important}
+
+.pcard{display:flex;align-items:center;gap:22px;margin:4px 0 30px;padding:18px 24px;border-radius:28px;background:color-mix(in srgb,var(--m1) 16%,var(--card));box-shadow:0 8px 24px color-mix(in srgb,var(--m1) 38%,transparent),0 1px 2px rgba(0,0,0,.04)}
+.pring{position:relative;width:88px;height:88px;flex:none}
+.pring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.pring circle{fill:none;stroke-width:9}
+.pring .pt0{stroke:color-mix(in srgb,var(--accent) 38%,var(--card))}
+.pring .rp{stroke:var(--link);stroke-linecap:round;transition:stroke-dasharray .5s var(--spring,ease)}
+.rn{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.rn b{font-size:27px;font-weight:800;letter-spacing:-.02em}
+.rn span{font-size:13px;color:var(--muted);margin-top:2px}
+.pm{font-size:21px;font-weight:800;letter-spacing:-.015em}
+.ps{margin-top:6px;font-size:16px;color:var(--muted)}
+.tile-edit .tile-name{border:1.5px dashed color-mix(in srgb,var(--ink) 30%,transparent);border-radius:12px;padding:7px 10px;margin:0 0 4px -10px;width:calc(100% + 10px)}
 .title-inp{font-size:28px;font-weight:700;min-height:60px;letter-spacing:-.01em}
 textarea.inp{padding:12px 16px;min-height:100px;line-height:1.5;resize:vertical}
 details.bulk{margin:16px 0 24px;padding:12px 16px;border-radius:20px;background:var(--card)}
@@ -269,6 +284,12 @@ details.bulk .btn{margin-top:10px}
 }
 .enter .tile,.enter .flow>li,.enter .setgroup,.enter .resume,.enter .empty,.enter .swipecard:not(.under){animation:fadeup .6s var(--ease) backwards}
 @keyframes fadeup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+@keyframes jig1{0%,100%{transform:rotate(-1.3deg)}50%{transform:rotate(1.3deg)}}
+@keyframes jig2{0%,100%{transform:rotate(1.2deg)}50%{transform:rotate(-1.4deg)}}
+.editing>.tile{animation:jig1 .26s ease-in-out infinite;transform-origin:50% 50%}
+.editing>.tile:nth-child(even){animation-name:jig2;animation-duration:.3s}
+.editing>.tile:nth-child(3n){animation-duration:.23s;animation-delay:-.1s}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 
 /* 梦幻渐变：每个主题色都有自己的一组渐变，颜色严格取自色卡的六个色号 */
@@ -544,7 +565,9 @@ function homeView(){
   if(!state.boards.length&&!ui.editMode)h+='<p class="empty">还没有板块。点右上角的锁解锁，再点虚线加号新建。</p>';
   h+='<div class="tiles'+(ui.editMode?' editing':'')+'">';
   state.boards.forEach(function(b){
-    h+='<div class="tile"><button class="tile-btn" data-act="board" data-bid="'+b.id+'" data-lp="board" data-id="'+b.id+'">'+esc(b.name)+'<small>'+sopsIn(b.id).length+' 张</small></button>'
+    h+='<div class="tile">'+(ui.editMode
+      ?'<div class="tile-btn tile-edit"><input class="tile-name" data-f="bname2" data-bid="'+b.id+'" maxlength="12" value="'+esc(b.name)+'" aria-label="板块名称"><small>'+sopsIn(b.id).length+' 张</small></div>'
+      :'<button class="tile-btn" data-act="board" data-bid="'+b.id+'" data-lp="board" data-id="'+b.id+'">'+esc(b.name)+'<small>'+sopsIn(b.id).length+' 张</small></button>')
       +(ui.editMode?'<button class="badge-del" data-act="askdel" data-kind="board" data-id="'+b.id+'" aria-label="删除板块 '+esc(b.name)+'">−</button>':'')+'</div>';
   });
   h+=addTile('board','板块名，比如：学习');
@@ -558,16 +581,16 @@ function boardView(){
   if(!b){ui.view='home';return homeView()}
   var list=sopsIn(b.id);
   var h='<div class="page"><div class="nav"><button class="linkbtn back" data-act="back">‹ 我的SOP</button>'+lockBtn()+'</div>';
-  h+='<header class="top">'+(ui.editMode?'<input class="inp title-inp" data-f="bname" maxlength="12" value="'+esc(b.name)+'" aria-label="板块名称">':'<h1>'+esc(b.name)+'</h1>')
-    +'<p class="sub">'+list.length+' 张 SOP'+(ui.editMode?'，可以直接改板块名':'')+'</p></header>';
+  h+='<header class="top"><h1>'+esc(b.name)+'</h1><p class="sub">'+list.length+' 张 SOP</p></header>';
   h+=toastHtml()+delPanel('sop');
   if(!list.length&&!ui.editMode)h+='<p class="empty">这个板块还没有 SOP。点右上角的锁解锁，再点虚线加号新建。</p>';
   h+='<div class="tiles'+(ui.editMode?' editing':'')+'">';
   list.forEach(function(s){
     var going=started(s);
-    h+='<div class="tile"><button class="tile-btn" data-act="open" data-id="'+s.id+'" data-lp="sop">'+esc(s.title)
+    var inner=(ui.editMode?'<input class="tile-name" data-f="tname2" data-sid="'+s.id+'" maxlength="30" value="'+esc(s.title)+'" aria-label="SOP 名称">':esc(s.title))
       +'<small>'+s.steps.length+' 步'+(going?' · <span class="prog">做到 '+marks(state.runs[s.id])+'/'+s.steps.length+'</span>':'')+'</small>'
-      +(s.sample?'<span class="tag">示例</span>':'')+'</button>'
+      +(s.sample?'<span class="tag">示例</span>':'');
+    h+='<div class="tile">'+(ui.editMode?'<div class="tile-btn tile-edit">'+inner+'</div>':'<button class="tile-btn" data-act="open" data-id="'+s.id+'" data-lp="sop">'+inner+'</button>')
       +(ui.editMode?'<button class="badge-del" data-act="askdel" data-kind="sop" data-id="'+s.id+'" aria-label="删除 '+esc(s.title)+'">−</button>':'')+'</div>';
   });
   h+=addTile('sop','SOP 名称，比如：洗澡')+'</div></div>'+dock(b.name);
@@ -601,7 +624,9 @@ function tickSteps(s,r){
   var n=s.steps.length;
   if(!n)return '<p class="empty">还没有步骤。点右上角的锁解锁，在这里添加。</p>';
   var left=s.steps.filter(function(x){return r.done[x.id]!=='done'}).length;
-  var h='<p class="lead'+(left?'':' ok')+'">'+(left?'还差 '+left+' 步':'全做完了')+'</p><ul class="flow">';
+  var dn=s.steps.filter(function(x){return r.done[x.id]==='done'}).length,pc=Math.round(dn/n*100),C=2*Math.PI*38;
+  var h='<section class="pcard" aria-label="进度"><div class="pring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="pt0" cx="50" cy="50" r="38"/><circle class="rp" cx="50" cy="50" r="38" stroke-dasharray="'+(C*dn/n).toFixed(1)+' '+C.toFixed(1)+'"/></svg><div class="rn"><b>'+dn+'</b><span>/'+n+'</span></div></div>'
+    +'<div class="pt"><div class="pm">'+(left?'已经完成了 '+pc+'%':'全部完成啦')+'</div><div class="ps">'+(left?'还剩 '+left+' 步':'点下面的按钮收工')+'</div></div></section><ul class="flow">';
   s.steps.forEach(function(x){
     var m=r.done[x.id];
     h+='<li><button class="node'+(m==='skip'?' skipped':'')+'" role="checkbox" aria-checked="'+(m==='done')+'" data-act="tick" data-sid="'+x.id+'">'
@@ -614,12 +639,12 @@ function tickSteps(s,r){
   return h;
 }
 function editSteps(s){
-  var h='<p class="lead">已解锁：直接改字，红点删除，箭头调顺序。</p><ul class="flow">';
+  var h='<ul class="flow">';
   s.steps.forEach(function(x,i){
     var open=ui.open[x.id]||x.note;
     h+='<li><div class="ebox">'
       +'<input class="inp" id="s-'+x.id+'" data-f="text" data-sid="'+x.id+'" value="'+esc(x.text)+'" placeholder="这一步做什么（越小越好）" autocomplete="off" aria-label="第 '+(i+1)+' 步">';
-    if(open)h+='<input class="inp small" data-f="note" data-sid="'+x.id+'" value="'+esc(x.note)+'" placeholder="备注（可不填），比如放在哪里" autocomplete="off" aria-label="第 '+(i+1)+' 步的备注">';
+    if(open)h+='<input class="inp small" data-f="note" data-sid="'+x.id+'" value="'+esc(x.note)+'" placeholder="备注（可不填）" autocomplete="off" aria-label="第 '+(i+1)+' 步的备注">';
     h+='<div class="eact">'+(open?'<span></span>':'<button class="mini" data-act="more" data-sid="'+x.id+'">＋ 备注</button>')
       +'<span class="ectl"><button class="mini" data-act="up" data-sid="'+x.id+'" aria-label="上移"'+(i===0?' disabled':'')+'>↑</button>'
       +'<button class="mini" data-act="down" data-sid="'+x.id+'" aria-label="下移"'+(i===s.steps.length-1?' disabled':'')+'>↓</button></span></div>'
@@ -1055,6 +1080,8 @@ document.addEventListener('click',function(e){
 document.addEventListener('input',function(e){
   var el=e.target,f=el.dataset&&el.dataset.f;if(!f)return;
   if(f==='tagline'){state.settings.tagline=el.value;el.style.height='auto';el.style.height=el.scrollHeight+4+'px';save();return}
+  if(f==='tname2'){var ts=sop(el.dataset.sid);if(ts){ts.title=el.value;save()}return}
+  if(f==='bname2'){var bb=boardOf(el.dataset.bid);if(bb){bb.name=el.value;save()}return}
   if(f==='bname'){var b=boardOf(ui.bid);if(b){b.name=el.value;save()}return}
   var s=sop(ui.sid);if(!s)return;
   if(f==='title'){s.title=el.value;save();return}
